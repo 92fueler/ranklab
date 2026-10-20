@@ -78,6 +78,25 @@ change the application in `src/` or its setup.
 - [Technical communication](questions/technical_communication.md)
 - [Code-review checklist](questions/code_review_checklist.md)
 
+### Video-to-model path
+
+These connected scenarios cover the data lifecycle without assuming a single
+model architecture:
+
+1. [Sampling, clips, and visual tokens](questions/video_sampling_and_visual_tokens.md):
+   distinguish source media, selected observations, and model representations.
+2. [Video curation and sampling](system_design/video_curation_and_sampling.md):
+   filtering, model-assisted labels, audits, and versioned selection.
+3. [Multimodal dataset joins](system_design/multimodal_dataset_join.md):
+   synchronized episodes, clocks, calibration, missing modalities, and provenance.
+4. [Multimodal model training](system_design/multimodal_model_training.md):
+   choose targets, supervision, data mixtures, objectives, and reproducible runs.
+5. [Evaluation metrics](questions/evaluation_metrics.md):
+   counting rules, precision/recall/F1, retrieval, temporal matching, and task success.
+6. [World-model evaluation](system_design/world_model_evaluation.md):
+   assess geometry, dynamics, control consistency, and downstream usefulness
+   alongside the existing [VLM evaluation](system_design/vlm_evaluation.md).
+
 ### Working with the Python files
 
 The new Python files use only the standard library. From the repository root,
