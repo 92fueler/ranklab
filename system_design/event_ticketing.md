@@ -1,53 +1,44 @@
-# Event-ticketing platform
+# Mercor – Event-ticketing platform (reported system-design topic)
 
-## Core prompt
+## References
 
-Design an event-ticketing platform.
+- [Mercor report collection](mercor_system_design_reports.md): user-supplied report; original public URL unavailable.
+- [Related payment-integration exercise](payment_integration.md).
 
-The initial prompt does not prescribe reserved seating, general admission,
-payment methods, traffic volume, or purchase rules. Choose and document a scope
-before treating any of the following as requirements.
+## Evidence status
 
-## Questions to resolve
+A supplied report names event ticketing as a system-design topic for a marketplace-oriented role. It does not provide detailed purchase rules, traffic figures, or a complete prompt. Every expanded requirement below is an original practice assumption, not a confirmed requirement from the reported interview.
 
-- Is inventory allocated to individual seats, ticket categories, or both?
-- What is the purchase journey from event discovery to confirmed ticket?
-- Are temporary holds needed? If so, how long do they last?
-- What happens when payment finishes after a hold expires?
-- Can tickets be cancelled, refunded, or transferred?
-- What peak demand, latency, and availability targets apply?
+## Problem statement
 
-## Optional design directions
+Design a platform where customers discover an event, select available tickets, and complete a purchase. Choose reserved seats or general-admission quantities before designing the system; neither model is established by the report.
 
-For a reserved-seat implementation, consider inventory, seat selection,
-temporary holds, checkout, and hold expiration.
+## Functional requirements
 
-- How do concurrent requests avoid selling the same seat twice?
-- What data model and transaction boundary protect inventory?
-- How are hold ownership and expiration enforced?
-- How do duplicate checkout requests behave?
-- How are payment outcomes reconciled with ticket issuance?
-- How do traffic spikes, queues, admission control, and backpressure affect users?
-- Which failures can be recovered automatically, and which need manual resolution?
+For the proposed exercise:
 
-If selecting general admission instead, explain how the design changes when
-protecting a quantity rather than a particular seat.
+- Show events, ticket categories, prices, and current purchase availability.
+- Let customers select tickets and learn whether their purchase succeeded.
+- Prevent confirmed sales from exceeding the selected inventory.
+- Define whether selections temporarily reserve inventory and when any reservation expires.
+- Handle repeated checkout attempts and uncertain payment outcomes without silently creating additional purchases.
+- Make purchased tickets retrievable by their authorized owner.
+- Define what happens when payment completes after inventory is no longer available.
 
-## Validation scenarios
+Refunds, cancellation, resale, transfer, and admission scanning are optional extensions, not assumed features.
 
-Choose scenarios appropriate to the selected product:
+## Non-functional requirements
 
-1. Two users attempt to hold the same seat simultaneously.
-2. A hold expires while checkout is running.
-3. Payment succeeds but ticket issuance fails.
-4. The client loses the successful checkout response and retries.
-5. A major event creates a sudden spike in demand.
+Choose targets for peak demand, response latency, availability, and recovery. Also clarify:
 
-For each scenario, identify authoritative state, consistency requirements, and
-the recovery path.
+- Inventory correctness during concurrent purchases.
+- Acceptable freshness of displayed availability versus checkout decisions.
+- Fair access during demand spikes and limits on abusive requests.
+- Protection of customer information and traceability of purchase outcomes.
+- Maximum time an unresolved purchase may remain pending.
 
-## Related exercises
+No numerical service targets were reported.
 
-- [Reliable payment integration](payment_integration.md) focuses on payment outcomes and reconciliation.
-- [Interrupted external payment](../debugging/interrupted_payment.py) examines concrete failure windows.
-- [Workflow orchestration](workflow_orchestration.md) covers coordinating durable multi-step work.
+## Optional failure conditions
+
+Two customers request the last ticket; a hold expires during checkout; payment succeeds but no ticket is visible; a successful response is lost; demand suddenly exceeds capacity. State what customers should observe and which business outcomes are permitted, without selecting an implementation.

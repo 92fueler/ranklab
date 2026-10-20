@@ -1,54 +1,36 @@
-# Evaluation platform
+# General – AI evaluation platform
 
-## Core prompt
+## References
 
-Design a platform for evaluating AI, comparing changes, and investigating
-regressions.
+- [NVIDIA Cosmos evaluation overview](https://nvidia-cosmos.github.io/cosmos-cookbook/core_concepts/evaluation/overview.html): technical inspiration for task-dependent evaluation, not interview evidence.
+- [Evaluation-metrics notes](../questions/evaluation_metrics.md).
 
-Choose a model, retrieval pipeline, or tool-using agent. Define the workload,
-quality objectives, latency, and cost constraints.
+## Evidence status
 
-## Questions to resolve
+This is an original general practice exercise, not an attributed Mercor, FigureAI, or other company interview question. The Cosmos reference concerns evaluation of video-generation model families; it does not specify a universal evaluation platform. The broader product requirements below are exercise assumptions, and no numerical targets are source facts.
 
-- Are evaluations batch experiments, online measurements, or both?
-- What identifies an evaluation case and the expected behavior?
-- Which datasets, model versions, prompts, configurations, and dependencies must
-  be pinned or recorded?
-- Which results use deterministic checks, model-based scoring, or human review?
-- How are rubric changes, reviewer disagreements, and uncertain judgments handled?
-- What metrics, data slices, and baselines support meaningful comparisons?
-- Who can access inputs, outputs, and traces, and how is sensitive data protected?
+## Problem statement
 
-## Optional design directions
+Design a platform that evaluates changes to a selected AI system, compares them with a baseline, and helps users investigate regressions. Choose a model, retrieval system, or tool-using agent and define what successful behavior means for that workload.
 
-Trace submission to a reviewable comparison. Consider:
+## Functional requirements
 
-- How runs expand into tasks, receive budgets, and record progress.
-- How sandboxing isolates evaluated code and constrains external tool actions.
-- How timeouts, retries, duplicate execution, and partial results affect scoring.
-- How artifacts preserve lineage from dataset and configuration through outputs,
-  scores, review decisions, and aggregate reports.
-- How scorers and reviewers are versioned and calibrated.
-- How slice metrics expose regressions hidden by aggregate improvements.
-- How sampling, stochastic outputs, and measurement uncertainty affect conclusions.
-- How quotas, caching, retention, and observability control cost.
+For the proposed exercise:
 
-Distinguish reproducible configuration from identical outputs. Explain what can
-be replayed when an external model or dependency changes. For online evaluations,
-clarify whether the platform observes existing traffic or changes live behavior.
+- Submit an evaluation with identified cases, system configuration, and scoring rules.
+- Record per-case outputs, scores, execution failures, latency, and cost where measurable.
+- Show progress and distinguish incomplete runs from complete comparisons.
+- Compare versions overall and across relevant data slices.
+- Let reviewers inspect disputed cases and record corrections or adjudications.
+- Preserve enough provenance to identify the data, configuration, and scoring procedure behind each result.
+- Keep execution failures distinct from model-quality failures under a declared scoring policy.
 
-## Validation scenarios
+Online experiments and actions affecting live users are outside the default scope.
 
-1. A worker fails after a model call but before saving its output.
-2. A dataset changes while an evaluation run is in progress.
-3. A scoring-model update reverses the ranking of two candidate systems.
-4. The overall score improves while an important slice regresses.
-5. Reviewers disagree on a case with an ambiguous rubric.
-6. A run exhausts its budget with only some cases completed.
+## Non-functional requirements
 
-Identify authoritative artifacts, recovery, and what each comparison may conclude.
+Choose run volume, dataset size, completion-time, availability, and budget targets. Define data access, retention, isolation, and recovery expectations. Require transparent uncertainty and comparison coverage. Clarify what reproducibility means when a model is stochastic or an external dependency changes; recorded configuration alone need not guarantee identical outputs.
 
-## Related exercises
+## Optional failure conditions
 
-- [Job scheduler and task execution](job_scheduler.md) focuses on durable execution.
-- [Human annotation and quality control](annotation_quality_control.md) covers review workflows.
+A dataset changes during a run; a scorer update reverses a ranking; aggregate performance improves while a critical slice regresses; reviewers disagree; a run stops after exhausting its budget. Specify what users can conclude without selecting a model judge, execution framework, or database.

@@ -1,71 +1,38 @@
-# Robotics video ingestion and processing
+# Figure AI – Multimodal training-data ingestion (candidate report)
 
-## Core prompt
+## References
 
-Design a large-scale pipeline that ingests video collected by robots, processes
-it, and makes selected outputs available for downstream analysis or dataset creation.
+- [Public Figure candidate report](https://www.screna.ai/experience/aad0d809-9cc7-4e7b-aec2-48d6fa49b5cb).
+- [Official Helix data-infrastructure role](https://job-boards.greenhouse.io/figureai/jobs/4345915006?gh_src=aijobsdesk): domain context, not an interview specification.
 
-Fleet size, recording volume, connectivity, latency, and retention are unspecified.
-Distinguish required behavior from optional extensions.
+## Evidence status
 
-## Questions to resolve
+The public candidate report describes collecting, filtering, and storing training uploads containing images, video, action sequences, labels, and metadata, including attention to collection bias. It is a candidate recollection, not a verified company rubric. The page's separately labeled AI-generated hints are not reported requirements. The official role corroborates robot-data infrastructure work, not this exact interview prompt. Additional requirements below are explicitly proposed practice assumptions.
 
-- What constitutes an ingestible unit: a recording session, clip, chunk, or frame?
-- Are multiple cameras or sensors associated with each recording?
-  Which timestamps, calibration data, and synchronization guarantees matter?
-- How much processing happens on the robot, and what must reach the cloud?
-- How should intermittent connectivity, limited local storage, and partial uploads behave?
-- Which transformations are required, and how quickly must their results be available?
-- Who consumes raw video, derived artifacts, and searchable metadata?
-- What access controls, retention policies, and deletion requirements apply?
+## Problem statement
 
-## Optional design directions
+Design a backend that receives multimodal training data from many clients and makes usable collections available to training-data consumers. Clarify client types and collection workflows rather than assuming every upload comes directly from a robot.
 
-Trace capture to usable output. Consider:
+## Functional requirements
 
-- How resumable ingestion detects corruption, missing chunks, and duplicate uploads.
-- How metadata identifies recordings independently of storage.
-- How processing is scheduled across resources with different capabilities.
-- How backpressure affects collection, upload, processing, and downstream consumers.
-- How inputs, transformation versions, and output lineage are recorded.
-- How reprocessing and partial failures affect previously published outputs.
-- How completeness, processing lag, storage cost, and data quality are measured.
+Source-supported core:
 
-Which artifacts must be consistent before a recording or dataset version becomes
-visible? An uploaded file need not mean a complete, usable recording.
+- Receive media, action sequences, labels, and associated metadata.
+- Filter and retain training data.
+- Identify and address bias or coverage gaps in collected data.
 
-## Optional engineering variants
+Proposed exercise expansion:
 
-These extensions are optional, not established requirements:
+- Show whether a submission is complete, usable, rejected, or awaiting processing.
+- Preserve the association between media, actions, and labels.
+- Handle corrections and repeated submissions with defined outcomes.
+- Let authorized consumers find and retrieve selected collections.
+- Explain quality exclusions and the basis of coverage assessments.
 
-- Mixed-modality collections
-  may combine images, videos, action sequences, and labels: define temporal
-  alignment and audit collection bias and coverage.
-- At 2 GB/s sustained ingestion,
-  estimate daily storage; clarify whether that rate includes
-  replication and budget separately for burst headroom, derived assets, and retention.
-- For firmware-driven quality changes,
-  version semantic/schema contracts; validate before release, canary changes,
-  and route failures to producer owners.
-- Across on-premises and cloud infrastructure,
-  choose storage/compute placement around transfer bottlenecks and training-read locality.
+## Non-functional requirements
 
-Choose the additional workload and producer-version assumptions explicitly
-before exploring these variants.
+Set assumed targets for upload volume, object sizes, processing delay, retention, and consumer throughput. Clarify intermittent connectivity, acceptable loss, recovery time, access boundaries, and operating cost. Specify what evidence would justify a claim about collection bias; no universal threshold or fixed fleet size is reported.
 
-## Validation scenarios
+## Optional failure conditions
 
-1. A robot disconnects midway through an upload and later retries it.
-2. A camera stream arrives after the rest of its recording session.
-3. A processing worker fails after producing only some outputs.
-4. A transformation bug requires reprocessing an affected subset of recordings.
-5. Upload volume exceeds processing capacity for a sustained period.
-6. A source recording must be deleted after derived artifacts exist.
-
-For each scenario, describe detection, authoritative metadata, recovery, and
-downstream visibility.
-
-## Related exercises
-
-- [Job scheduler and task execution](job_scheduler.md) explores dispatch and worker recovery.
-- [Human annotation and quality control](annotation_quality_control.md) covers downstream labeling.
+A large upload stops halfway; labels arrive late; action timing is inconsistent with video; filtering disproportionately removes a useful scenario; a corrected source invalidates previously selected data. Define required behavior while leaving storage and processing choices open.

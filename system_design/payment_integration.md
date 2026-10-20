@@ -1,62 +1,36 @@
-# Reliable payment integration
+# Mercor – Reliable payment integration (code-review and design discussion)
 
-## Core prompt
+## References
 
-Design an integration with an external payment provider. Address:
+- [Mercor report collection](mercor_system_design_reports.md): user-supplied reports; original public URLs unavailable.
+- [Related public technical-screen report](https://prachub.com/interview-experiences/mercor-software-engineer-interview-experience-technical-screen-with-bloom-filter-and-payment-idempotency-debugging).
+- [Expanded charge-then-record exercise](https://prachub.com/interview-questions/make-a-charge-then-record-payment-endpoint-safe-against-timeouts-retries-and-crashes).
 
-- Error handling, retries, and idempotency.
-- The data that must be stored.
-- Database selection, including transaction guarantees and availability.
+## Evidence status
 
-## Questions to resolve
+Supplied reports describe payment-provider integration, retries, error handling, idempotency, stored data, and database guarantees within a technical screen. Another describes reviewing a charge followed by a database write. These do not establish a standalone system-design round. Expanded behaviors below are practice assumptions; reported candidate solutions are not mandatory architecture.
 
-- Which payment operations are in scope: charge, authorize, capture, refund, or others?
-- What idempotency and status-query capabilities does the provider expose?
-- How are provider events authenticated, deduplicated, and ordered?
-- What request identity does the caller preserve across retries?
-- What consistency, availability, audit, and retention requirements apply?
+## Problem statement
 
-## Optional design directions
+Design an integration that submits a payment operation to an external provider and gives the caller a trustworthy outcome, including when requests, responses, or local persistence fail. Use a simulated provider for the exercise, not real payments.
 
-Define a durable operation identifier and an explicit state model. Possible
-states include pending, succeeded, failed, and unresolved; adapt the model to the
-provider's actual contract.
+## Functional requirements
 
-Consider storing the operation identifier, relevant request attributes,
-provider identifiers, status, attempt history, timestamps, and reconciliation
-information. Decide what is necessary without storing unnecessary payment
-credentials or sensitive data.
+For this practice version:
 
-Explain:
+- Accept a payment request and let the caller inspect its outcome.
+- Distinguish confirmed success, confirmed failure, and an outcome that remains unknown.
+- Handle repeated submissions of the same intended operation without unintended repeated charges.
+- Detect conflicting request contents when the caller claims they represent the same operation.
+- Resolve uncertain results using only capabilities the provider actually supports.
+- Retain enough history to investigate discrepancies and explain the caller-visible result.
 
-1. Which errors are retryable and which have an unknown outcome.
-2. How retries preserve provider-supported idempotency semantics.
-3. What happens if the same identifier is reused with different request contents.
-4. How reconciliation uses status queries or verified provider events.
-5. How audit records support investigation without exposing secrets.
-6. Which database access patterns and correctness requirements drive the choice.
+Clarify whether charges, authorizations, captures, or refunds are in scope and what guarantees the provider offers.
 
-A local database transaction cannot, by itself, make an unrelated external
-charge atomic. Identify this boundary explicitly and explain recovery rather
-than promising an unsupported guarantee.
+## Non-functional requirements
 
-## Failure-window analysis
+Choose availability, response-time, recovery, throughput, and retention targets. Require auditable outcomes and minimal exposure of financial information. Define the acceptable time to resolve uncertainty and distinguish local consistency from external-provider guarantees. None of these numerical targets is supplied by the reports.
 
-Trace the sequence: request received, provider called, local result stored,
-response returned.
+## Optional failure conditions
 
-- The process stops before calling the provider.
-- The provider succeeds but its response is lost.
-- The provider succeeds but the local database write fails.
-- The database write succeeds but the client never receives the response.
-- A duplicate request or repeated provider event arrives.
-
-For each case, state what is known, what remains uncertain, what may safely be
-retried, and how the system reaches a resolved outcome. A timeout is not proof
-that the payment failed.
-
-## Related exercises
-
-- [Interrupted external payment](../debugging/interrupted_payment.py) turns the failure-window analysis into a debugging exercise.
-- [Event-ticketing platform](event_ticketing.md) combines payment with limited inventory.
-- [Workflow orchestration](workflow_orchestration.md) explores durable execution and retries.
+The provider succeeds but its response is lost; local recording fails; the caller retries after success; duplicate provider notifications arrive; provider deduplication expires. Specify acceptable business outcomes without assuming an implementation can guarantee exactly-once effects.

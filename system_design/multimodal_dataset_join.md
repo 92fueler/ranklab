@@ -1,80 +1,42 @@
-# Multimodal dataset joins
+# NVIDIA GR00T N1: Aligned episode data service
 
-## Core prompt
+Published-system-inspired exercise; not a verified interview prompt.
 
-Design an offline dataset service accepting modality manifests and a join
-specification, publishing versioned episode shards for training readers.
-Sources arrive asynchronously at different rates. Choose the learning objective
-before the timeline.
+## References
 
-What distinguishes an available observation from a future prediction target?
-Matching timestamps do not establish availability at decision time.
+- [NVIDIA: GR00T N1 technical report, Appendix D.1](https://arxiv.org/html/2503.14734v1)
 
-## Small example
+## Published System Context
 
-An episode has 30 Hz images, 100 Hz state, and 10 Hz commands.
-At action time 1.100 seconds, the preceding image was exposed at 1.083 seconds;
-the state sample at 1.100 is missing.
+GR00T N1's report describes episode data using MP4 video, Parquet states and actions, and JSON metadata, with synchronized observations and actions and explicit modality semantics. The model combines vision-language processing with a flow-matching action module. This exercise focuses on the backend supplying aligned training examples, not the model architecture.
 
-Would a 20-millisecond tolerance admit the image? Use state at 1.090,
-interpolate between 1.090 and 1.110 for offline reconstruction, or mark missing?
-Interpolation uses future evidence here, not an observation available to a
-causal policy. Arrival times and sensor latency may impose stricter constraints.
+## Problem Statement
 
-How should the answer change if the camera clock is 40 milliseconds ahead,
-or the action timestamp records command receipt rather than execution?
+Design a dataset service that joins camera observations, robot state, commands, and task annotations into training episodes across multiple robot types. Collection tools may deliver components at different times, and clocks or metadata may later be corrected. Researchers need usable examples and explicit evidence of missing or uncertain alignment.
 
-## Choose the temporal contract
+All requirements below are proposed exercise scope, not claims about NVIDIA's internal services.
 
-- Which identifier binds an episode, device, camera, and recording segment?
-  Which clocks are authoritative, and how are offset, drift, correction version,
-  and uncertainty recorded?
-- Will each modality use exact matching, nearest matching within a tolerance,
-  backward-only matching, or interpolation? Define tie-breaking, gaps, and
-  maximum staleness separately.
-- Which quantities support interpolation? Continuous positions may; rotations
-  need appropriate methods. Do not apply scalar interpolation indiscriminately
-  to categorical events, image frames, or discrete action identities.
-- How do exposure intervals, rolling shutter, dropped frames, and action duration
-  affect the meaning of a sample?
+## Functional Requirements
 
-## Choose the spatial and provenance contract
+- Accept episode registrations and independently arriving video, state/action records, and metadata. Report missing components and incompatible schemas before release.
+- Preserve robot identity, modality definitions, units, coordinate conventions, calibration references, and the meaning of each timestamp.
+- Let researchers specify an alignment request and inspect whether each resulting observation was available at the policy's decision time. Distinguish observation inputs from future action targets.
+- Represent dropped frames, sensor gaps, uncertain timing, and absent modalities explicitly; missing measurements must not become valid zero-valued observations.
+- Support training examples with selected camera views, instruction labels, and action horizons. Reject or clearly mark examples that do not satisfy the requested contract.
+- Publish versioned episode collections and quality summaries for distributed training readers, including source references and the alignment decisions behind each example.
+- Allow corrected clocks, calibrations, or labels to produce revised outputs and identify affected experiments without silently modifying a released dataset.
+- Expose interfaces to submit alignment jobs, inspect failures, retrieve sample previews, and obtain complete dataset releases.
 
-Which coordinate frame and units describe each pose or action? Pin calibration
-versions, camera intrinsics and extrinsics, robot configuration, and transform
-conventions. How are invalid or uncertain transforms surfaced rather than
-silently producing plausible coordinates?
+## Non-Functional Requirements
 
-Keep source references, original and corrected timestamps, join rules, sample
-IDs, interpolation provenance, missingness masks, and label versions.
-Missing data must not become a valid zero. Represent image-only or text-image
-examples without inventing telemetry or timestamps.
+Proposed exercise assumptions, not NVIDIA's reported service guarantees:
 
-For a million episodes, choose partition keys, incremental recomputation,
-submission/status interfaces, and an atomic publication boundary.
-How do workers retry without duplicating shards or exposing partial snapshots?
+- Alignment errors must be observable rather than hidden behind syntactically valid tensors.
+- Readers must receive a consistent release even while new components arrive.
+- Routine worker failures must not lose accepted inputs or corrupt published episodes.
+- Processing cost and read throughput must support the agreed episode volume and training concurrency.
+- Related demonstrations must obey the experiment's train/evaluation separation rules.
 
-## Separate reconstruction from streaming
+## Requirements to Clarify
 
-What completeness condition closes an offline episode? Which late corrections
-require new snapshots rather than overwriting published data?
-
-A streaming consumer needs watermarks, allowed lateness, provisional results,
-and corrections or retractions. An offline join does not automatically provide
-these guarantees or reproduce deployment availability.
-
-## Release checks and failure cases
-
-Group related episodes, overlapping clips, repeated demonstrations, and relevant
-collection sessions before splitting. Fit learned preprocessing only on training
-data; never let future labels or targets enter observation features.
-
-Test clock resets, missing calibration, out-of-order arrivals, long sensor gaps,
-and a duplicated episode under a new filename. What timestamp residuals, coverage
-rates, manual alignment audits, and causal-availability checks block release?
-
-## Related exercises
-
-- [Robotics video ingestion](robotics_video_pipeline.md)
-- [Egocentric video platform](egocentric_video_data_platform.md)
-- [Video curation and sampling](video_curation_and_sampling.md)
+Agree on sensor rates, timing uncertainty, acceptable staleness, episode completeness, and action semantics. Which consumers need causal observations versus offline reconstruction? Decide how late corrections affect existing training runs. Select measurable throughput, recovery, and alignment-quality targets before choosing an implementation.

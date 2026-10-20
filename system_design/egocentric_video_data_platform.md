@@ -1,73 +1,41 @@
-# Egocentric video data platform
+# Figure AI Index: Human-video data platform
 
-## Core prompt
+Published-system-inspired exercise; not a verified interview prompt.
 
-Design a platform where distributed human collectors upload first-person video
-that is processed, indexed, and assembled into training datasets for vision-language
-models.
+## References
 
-Focus on human-collected training footage rather than robot telemetry.
-Establish device, scale, connectivity, latency, and training requirements.
+- [Figure: Introducing Index](https://www.figure.ai/news/introducing-index)
 
-## Questions to resolve
+## Published System Context
 
-- What identifies a collector, recording session, camera, and captured segment?
-- Which capture timestamps and metadata are required and reliable?
-- What consent, privacy, access, retention, and deletion constraints apply to
-  collectors, bystanders, and recorded environments?
-- Which video formats, recording lengths, and network conditions must be supported?
-- What defines useful data: clarity, actions, language alignment, diversity, or coverage?
-- How do consumers discover clips through structured or semantic queries?
-- What dataset formats and read throughput do training jobs require?
+Figure describes Index as a creator app and pipeline collecting human activity videos for Helix training. Its published processing stages include filtering, fraud review, deduplication, rebalancing, and hierarchical episode captioning. Figure also describes continuous processing and feedback to contributors. The source does not disclose its complete backend architecture.
 
-## Optional design directions
+## Problem Statement
 
-Trace capture through a training-ready dataset snapshot. Consider:
+Design the backend for a similar collection platform serving contributors, data operations staff, and training researchers. For this exercise, assume the submitted footage is first-person video. Contributors need dependable uploads and useful feedback; researchers need searchable, traceable training datasets. Design the platform supporting these workflows, not the learning model or a replica of Figure's private infrastructure.
 
-- How resumable multipart uploads, manifests, checksums, and completion states
-  identify missing, corrupted, or duplicate content.
-- How immutable raw assets relate to decoded frames, transcoded videos, sampled
-  clips, and later corrections or authorized deletions.
-- How codec failures and backlogs affect availability and costs.
-- How blur, motion, duplication, and coverage checks influence selection without
-  removing valuable examples.
-- How timestamps preserve temporal alignment across clips, audio, captions, and labels.
-- How annotation and automated enrichment record versions and provenance.
-- How metadata and embedding indexes combine semantic and structured constraints
-  consistently with asset permissions.
-- How versioned dataset snapshots record inclusion rules, transformations, and lineage.
-- How train, validation, and test splits prevent leakage across related collectors,
-  sessions, overlapping clips, or near-duplicate recordings.
-- How sharded training formats, caching, and prefetching sustain the chosen throughput.
-- How evaluation findings lead to targeted recollection, relabeling, or reprocessing.
+All requirements below are proposed exercise scope, not claims about Index.
 
-Distinguish upload acceptance, processing completion, search visibility, and dataset
-release. Define the guarantees at each boundary.
+## Functional Requirements
 
-## Optional engineering variants
+- Let contributors register recording sessions, submit video and task metadata, recover interrupted submissions, and inspect acceptance or rejection status.
+- Let operations staff define collection tasks and eligibility rules, inspect processing failures, and provide actionable feedback without exposing restricted footage.
+- Support technical and semantic assessment, duplicate detection, diversity selection, and caption generation as configurable processing capabilities. Retain the decisions and versions behind each result.
+- Let researchers find eligible clips by task, object, environment, collection period, and available annotations, with previews and source provenance.
+- Create reproducible dataset releases whose selected clips, captions, transformations, and inclusion criteria can be inspected and consumed by distributed training jobs.
+- Handle corrections, consent withdrawal, and authorized deletion across recordings, derived artifacts, search results, and affected dataset releases.
+- Expose interfaces for submission, processing status, search, and dataset export; preserve meaningful progress when processing fails or work is repeated.
 
-Consider these optional extensions beyond the core requirements:
+## Non-Functional Requirements
 
-- Test diversity beyond task labels using embedding clusters, near-duplicate
-  similarity thresholds, and task quotas; detect submissions that mismatch their
-  selected task.
-- Return asynchronous processing and quality feedback to collectors without
-  coupling upload acceptance to final dataset inclusion.
-- Distinguish episode summaries from fine-grained captions; preserve time ranges
-  and lineage when episodes are resegmented.
+Proposed exercise assumptions, not Figure's reported service guarantees:
 
-## Validation scenarios
+- Accepted recordings and release histories must remain durable under ordinary worker failures.
+- Upload bursts and expensive processing must not make contributor status unavailable.
+- Dataset consumers must distinguish complete releases from unfinished work.
+- Access restrictions and deletion obligations must apply to derived data as well as originals.
+- Processing delay, retained coverage, failure rates, and cost must be measurable.
 
-1. A collector resumes an interrupted upload and resubmits an overlapping segment.
-2. A codec error leaves only part of a recording decodable.
-3. A timestamp correction invalidates existing clip-label alignment.
-4. Near-duplicate footage appears in both training and evaluation sets.
-5. Consent is withdrawn after derived artifacts and dataset snapshots exist.
-6. Training readers outpace the dataset delivery layer.
+## Requirements to Clarify
 
-Describe detection, recovery, provenance, and downstream effects.
-
-## Related exercises
-
-- [Robotics video ingestion and processing](robotics_video_pipeline.md) focuses on robot recordings.
-- [Evaluation platform](evaluation_platform.md) covers measuring dataset-driven improvements.
+Agree on upload volume, clip sizes, geographic constraints, feedback latency, retention periods, and concurrent training-reader throughput. Decide which collection restrictions are mandatory and whether creator compensation is outside scope. Choose explicit availability and recovery targets before designing capacity.

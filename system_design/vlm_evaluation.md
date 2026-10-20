@@ -1,58 +1,35 @@
-# Video vision-language model evaluation
+# General – VLM and video evaluation
 
-## Core prompt
+## References
 
-How would you design an evaluation system for a vision-language model trained
-on egocentric video, so that model and dataset changes can be compared and
-failures can guide further data collection?
+- [Official Ego4D natural-language-query evaluator](https://github.com/EGO4D/episodic-memory/blob/main/NLQ/VSLNet/utils/evaluate_ego4d_nlq.py): a concrete temporal-localization scoring reference.
+- [Evaluation-metrics notes](../questions/evaluation_metrics.md).
+- [General evaluation-platform exercise](evaluation_platform.md).
 
-Which tasks, modalities, deployment context, scale, and quality objectives
-must be clarified before selecting metrics or architecture?
+## Evidence status
 
-## Questions to resolve
+This is an original practice exercise, not an actual reported FigureAI system-design question. Ego4D provides a task-specific evaluation implementation, not a company interview prompt or a complete VLM evaluation specification. All platform requirements and operational targets below are proposed exercise assumptions. Metrics must match the chosen task rather than being transferred indiscriminately from that benchmark.
 
-- Does the model answer video questions, ground language in frames or regions,
-  identify temporal events, or perform another task?
-- How are recordings, time windows, sampled frames, prompts, and reference labels versioned?
-- How are splits separated across collectors, environments, sessions, overlapping
-  clips, and near-duplicate footage to limit leakage?
-- What spatial and temporal alignment is required between model inputs, outputs,
-  and reference annotations?
-- Which questions are answerable from the available footage, and when should the
-  model express uncertainty or abstain?
-- What privacy, access, and retention constraints apply to evaluation artifacts?
+## Problem statement
 
-## Optional design directions
+Design an evaluation system for a vision-language model operating on video, so that model or dataset changes can be compared and failures can inform later data work. Select a primary task, such as video question answering or locating a described event in time.
 
-- How does an evaluation specification select cases, input transformations, model
-  versions, inference settings, and scoring procedures?
-- How are reference labels created, independently checked, and adjudicated when
-  the footage or task wording is ambiguous?
-- Which task-dependent measures capture answer correctness, visual grounding,
-  temporal understanding, hallucination, and appropriate abstention?
-- When are human reviewers needed, and how are automated judges calibrated against
-  reviewed examples rather than assumed reliable?
-- How do failure taxonomies and slices distinguish lighting, occlusion, motion,
-  viewpoint, clip length, rare activities, and other relevant conditions?
-- How do paired comparisons account for stochastic outputs, correlated clips,
-  sample sizes, and measurement uncertainty?
-- How are execution failures, incomplete runs, retries, latency, and cost presented
-  separately from model quality?
-- Which artifacts enable reproducibility, and what limitations remain if external
-  dependencies change?
-- How can findings inform recollection, relabeling, or training-data changes without
-  repeatedly tuning to a supposedly held-out test set?
+## Functional requirements
 
-## Validation scenarios
+For the proposed scope:
 
-1. What happens when near-duplicate training footage is discovered in an evaluation split?
-2. How is a correct event label scored when its predicted time window is displaced?
-3. How is a plausible answer handled when the video does not support it?
-4. What happens when an automated judge disagrees systematically with human reviewers?
-5. What can be concluded when aggregate scores improve but a slice regresses?
-6. How are results revisited after a reference-label correction?
+- Define evaluation cases with video references, prompts, expected behavior, and relevant labels.
+- Identify the exact input preparation, model configuration, and scoring rules used in each run.
+- Record predictions, supporting time ranges where relevant, and execution failures.
+- Compare versions overall and across meaningful scene or activity categories.
+- Support review of ambiguous labels, unsupported answers, and scorer disagreements.
+- Detect or flag related footage crossing training and evaluation boundaries.
+- Preserve prior results when labels or scoring rules are corrected.
 
-## Related exercises
+## Non-functional requirements
 
-- [Egocentric video data platform](egocentric_video_data_platform.md)
-- [Evaluation platform](evaluation_platform.md)
+Clarify corpus size, clip lengths, run frequency, completion time, and compute budget. Set access and retention requirements for recorded footage. Require interpretable coverage, uncertainty, and failure reporting. Define repeatability expectations, temporal-alignment tolerance, and the treatment of unanswerable or missing cases. No fixed quality threshold or latency target is assumed.
+
+## Optional failure conditions
+
+A plausible answer lacks video evidence; a predicted event window is shifted; near-duplicate footage leaks into the test set; a judge systematically disagrees with reviewed examples; one activity regresses despite a higher aggregate score. State expected evaluation behavior without prescribing model architecture or infrastructure.

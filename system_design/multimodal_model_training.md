@@ -1,89 +1,42 @@
-# Multimodal model training
+# Physical Intelligence π0.5: Mixed-supervision training platform
 
-## Core prompt
+Published-system-inspired exercise; not a verified interview prompt.
 
-Design a shared training platform where researchers submit versioned video,
-language, robot-state, and action datasets, launch GPU jobs, and compare resulting
-checkpoints. Support queued jobs, progress inspection, cancellation, failure
-recovery, and reproducible lineage. Clarify users, scale, budgets, and targets.
+## References
 
-## Define the prediction target
+- [Physical Intelligence: A VLA with Open-World Generalization](https://www.pi.website/blog/pi05)
 
-- A vision-language model (VLM) may predict answers, captions, grounded regions,
-  or event labels from images or video and language, without robot actions.
-- A vision-language-action model (VLA) predicts actions from observations,
-  instructions, and possibly proprioception or history. Define whether outputs
-  are joint commands, end-effector motions, discrete skills, or action chunks.
-- A world model predicts future observations or latent state from history and,
-  when action-conditioned, proposed actions. Predicting futures differs from
-  selecting a successful control policy.
+## Published System Context
 
-These roles can share components without sharing objectives or evaluation.
+Physical Intelligence describes π0.5 co-training on robot demonstrations, image/text tasks, bounding boxes, subtask labels, and verbal instructions across robot types. Its high-level text predictions use autoregressive decoding; continuous low-level actions use flow matching. The exercise is the infrastructure supporting such mixed supervision, not a request to redesign the model.
 
-## Dataset and model contracts
+## Problem Statement
 
-Pin an immutable manifest containing episode identifiers, source revisions,
-splits, timestamps, annotations, filtering decisions, synchronization rules, and
-transformation versions. Connect each checkpoint to that manifest, model
-initialization, configuration, code revision, and preprocessing.
+Design a shared training platform for researchers comparing mixtures of robot and general multimodal data. They need to launch distributed experiments, recover interrupted work, and understand which data and objectives produced a checkpoint. An experiment may contain examples with different available labels; not every example contains robot actions.
 
-Define modality availability, padding, and loss masks. Examples need not have
-every modality; missing actions are not zero actions. Human video lacks measured
-robot actions: distinguish inferred or inverse-dynamics pseudo-actions from
-recorded supervision. Standardize compatible action representations, specifying
-absolute/delta commands, coordinate frames, units, rotations, control frequency,
-horizon, calibration, and training-only normalization statistics. Incompatible
-embodiments may need separate adapters or heads rather than a universal action space.
+All requirements below are proposed exercise scope, not claims about Physical Intelligence's infrastructure.
 
-Choose sampling weights across tasks, embodiments, sites, sources, and rare
-conditions. Track effective exposure: balanced batches do not imply balanced
-deployment performance. Keep related
-episodes, overlapping clips, near-duplicates, people, and sites together where
-the intended generalization test requires it; declare which axes are held out.
+## Functional Requirements
 
-## Objectives and adaptation
+- Register versioned datasets with their modalities, supervision types, robot embodiments, permitted uses, and train/evaluation partitions.
+- Let researchers submit an experiment specifying model initialization, code and configuration versions, dataset mixture, objective selection, resource needs, and evaluation plan.
+- Validate that requested objectives match available labels and compatible action semantics. Distinguish recorded actions from inferred targets and absent supervision.
+- Support distributed job admission, progress inspection, cancellation, and recovery after worker failure. Users must be able to determine whether a repeated request created additional work.
+- Track actual data exposure and task-specific training measurements so researchers can detect a mixture imbalance or a modality that contributes no valid supervision.
+- Persist checkpoints and run records sufficient to explain and resume the agreed training state; state the reproducibility guarantees when exact numerical replay is unavailable.
+- Compare checkpoints on held-out robot tasks, instruction following, and relevant generalization slices, linking each result to its evaluation inputs and configuration.
+- Provide interfaces for dataset lookup, experiment submission, run control, checkpoint retrieval, and comparison. Producing a checkpoint does not automatically authorize robot deployment.
 
-Select objectives by architecture and target: contrastive or generative
-vision-language alignment, supervised grounding, action prediction, or future
-state prediction. Continuous action heads may use regression, diffusion, or
-flow-matching objectives; tokenized action heads may use autoregressive losses.
-Some systems combine text generation with continuous action generation, or use
-discrete action supervision during training without that decoding path at
-inference. Do not assume every VLA generates actions autoregressively.
+## Non-Functional Requirements
 
-Compare frozen visual/language backbones plus adapters against partial or full
-fine-tuning, considering supervision, compute, forgetting, and embodiment
-transfer. Record objective weights. Use controlled ablations that fix downstream
-data, architecture, optimization, and evaluation when isolating pretraining changes.
+Proposed exercise assumptions, not the company's reported service guarantees:
 
-## Execution and release
+- Concurrent teams must not access one another's restricted datasets or checkpoints.
+- Resource contention and failures must have visible effects on job status and cost.
+- Interrupted work must recover within an agreed loss-of-progress budget.
+- Training readers must sustain the selected experiment scale without changing mixture semantics.
+- Released checkpoints and evaluations must have auditable lineage.
 
-What APIs and durable records represent a run, dataset snapshot, resource request,
-checkpoint, and evaluation? Which state transitions are atomic, who may cancel
-a run, and how do retries avoid launching duplicate expensive jobs?
+## Requirements to Clarify
 
-Allocate distributed jobs by GPU memory, interconnect, parallelism strategy, and
-priority. Measure decoding, object-store reads, augmentation, and host-to-device
-transfer before assuming low GPU utilization requires more GPUs. Use sharding,
-prefetching, caching, and bounded queues without changing sampling semantics.
-
-Checkpoint model, optimizer, scheduler, mixed-precision state, random generators,
-sampler position, and data-loader progress. Exact resume additionally depends on
-worker ordering and deterministic kernels; otherwise document the reproducible
-configuration and expected divergence. Publish checkpoints atomically.
-
-Run controlled held-out evaluations before bounded closed-loop tests. Compare
-matched baselines, important slices, latency, task success, and safety failures;
-offline loss alone does not authorize deployment.
-
-## Validation scenarios
-
-1. A worker fails after consuming batches but before checkpoint publication.
-2. An action stream changes units while its tensor shape stays unchanged.
-3. Aggregate performance improves while an unseen-site slice regresses.
-
-## Related exercises
-
-- [Robotics video ingestion and processing](robotics_video_pipeline.md)
-- [Video vision-language model evaluation](vlm_evaluation.md)
-- [World-model evaluation](world_model_evaluation.md)
+Set dataset sizes, accelerator availability, job concurrency, priorities, checkpoint frequency, and retention budget. Decide whether users supply training code or only approved recipes. Which generalization axes must remain held out, and what operational evidence is required before a checkpoint is eligible for separate deployment review?

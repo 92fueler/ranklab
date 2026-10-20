@@ -1,34 +1,38 @@
-# Atomic membership and insertion
+# Mercor – Atomic membership and insertion (technical-screen design discussion)
 
-## Core prompt
+## References
 
-Design a service holding roughly one million identifiers. Atomically check
-whether an identifier exists and insert it if absent. Define each caller's
-result when requests for the same identifier overlap.
+- [Public candidate report](https://prachub.com/interview-experiences/mercor-software-engineer-interview-experience-technical-screen-with-bloom-filter-and-payment-idempotency-debugging).
+- [Expanded public practice question](https://prachub.com/interview-questions/check-and-insert-for-a-million-user-ids-balancing-latency-memory-and-accuracy).
 
-Compare exact membership with a lower-memory approximation. Explain whether a
-false positive could incorrectly reject a genuinely new identifier.
+## Evidence status
 
-## Questions to resolve
+The edited candidate report describes checking and adding approximately one million identifiers, with latency, memory, and accuracy trade-offs. This was a technical-screen discussion alongside code review, not a verified standalone system-design round. The candidate's implementation choices are not requirements. The exercise below adds explicit behavioral assumptions; unspecified scale and service targets remain yours to choose.
 
-Identifier format, traffic, latency targets, growth, and durability are
-unspecified. Establish them before selecting storage.
+## Problem statement
 
-- What is the realistic memory footprint, including representation, indexing,
-  allocation overhead, and spare capacity?
-- Where is the check-and-insert atomicity boundary?
-- How does correctness change with multiple application servers?
-- If approximate membership is used, what error rate is acceptable, and how
-  are uncertain decisions checked?
-- What survives a restart, and how is persisted state recovered?
-- How do partitioning, rebalancing, and deletion affect membership?
+Design a service that tells a caller whether an identifier was already present and adds it when absent. Explore how the contract changes as memory becomes constrained, requests overlap, and the collection grows.
 
-## Additional engineering choices
+## Functional requirements
 
-Define behavior for these optional extensions:
+For this practice version:
 
-- Two servers insert the same absent identifier concurrently.
-- A caller times out after an insertion may have committed.
-- A partition moves while requests remain in flight.
-- An identifier is deleted and immediately inserted again.
+- Accept an identifier and return whether this operation inserted it or found it already present.
+- Treat concurrent check-and-insert requests consistently: only one request may report inserting the same previously absent identifier.
+- Define invalid identifier handling and the result of retrying after a lost response.
+- Specify whether accepted insertions survive restarts.
+- If approximate answers are allowed, identify the permitted error direction and its effect on admitting a new identifier.
+- Treat deletion and multiple service instances as optional extensions, with explicit behavior.
 
+## Non-functional requirements
+
+Proposed constraints to clarify, not reported targets:
+
+- Identifier representation, expected growth, request rate, and read/write mix.
+- Memory budget, tail-latency objective, availability, and recovery time.
+- Exactness requirements and any acceptable error probability.
+- Operational visibility into rejected requests, resource consumption, and recovery.
+
+## Optional failure conditions
+
+Consider overlapping inserts, a timeout after acceptance, a restart during an insertion, and deletion concurrent with reinsertion. Describe expected outcomes without assuming a particular data structure or storage engine.

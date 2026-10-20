@@ -25,8 +25,10 @@ change the application in `src/` or its setup.
   assumptions, TODOs, and test expectations. Algorithms are not implemented.
 - [Debugging](debugging/): one Python file per concrete problem, with an
   intentionally buggy runnable example and a TODO repair entry point.
-- [System design](system_design/): one Markdown file per scenario, with questions
-  about requirements, architecture, and failure handling.
+- [System design](system_design/): one Markdown file per scenario, with company or
+  system attribution, references, a problem statement, and functional/non-functional
+  requirements. Proposed exercise assumptions are separate from reported facts;
+  the architecture solution is left to the reader.
 - [AI projects](ai_projects/): end-to-end project specifications. These stay in
   Markdown because dataset, model, and evaluation choices span multiple files.
 - [Questions](questions/): probability, technical communication, and code-review
@@ -54,17 +56,23 @@ change the application in `src/` or its setup.
 - [Interrupted payment operation](debugging/interrupted_payment.py)
 - [Asynchronous refund retries](debugging/async_refund.py)
 
-### Design and project questions
+### Design sources and scenarios
+
+Start with the [Mercor system-design reports](system_design/mercor_system_design_reports.md)
+and the [physical-AI interview report index](system_design/physical_ai_interview_reports.md).
+Candidate accounts, curated reports, official systems, and inferred exercises are
+labeled separately. A reported topic does not establish a company's private architecture.
+
 
 - [Cloud agents](system_design/cloud_agents.md)
 - [Job scheduler](system_design/job_scheduler.md)
 - [Workflow orchestration](system_design/workflow_orchestration.md)
 - [Dataset deep-copy API](system_design/dataset_deep_copy.md)
 - [Atomic membership and insertion](system_design/atomic_membership.md)
-- [Robotics video pipeline](system_design/robotics_video_pipeline.md)
-- [Egocentric video data platform](system_design/egocentric_video_data_platform.md)
+- [Figure AI: multimodal training-data ingestion](system_design/robotics_video_pipeline.md)
+- [Figure AI Index: egocentric video data platform](system_design/egocentric_video_data_platform.md)
 - [VLM evaluation](system_design/vlm_evaluation.md)
-- [Annotation and quality control](system_design/annotation_quality_control.md)
+- [Figure AI Index-inspired annotation and quality control](system_design/annotation_quality_control.md)
 - [Evaluation platform](system_design/evaluation_platform.md)
 - [Candidate-search architecture](system_design/candidate_search.md)
 - [Event ticketing](system_design/event_ticketing.md)
@@ -72,11 +80,20 @@ change the application in `src/` or its setup.
 - [Candidate-search project](ai_projects/candidate_search.md)
 - [Autoregressive language-model project](ai_projects/autoregressive_language_model.md)
 - [Local model evaluation](ai_projects/local_model_evaluation.md)
+- [1X: video-to-action learning platform](system_design/video_to_action_learning.md)
+- [Humanoid KinetIQ: data and policy training](system_design/humanoid_data_training.md)
 - [Coffee-shop probability](questions/coffee_shop_probability.md)
 - [LLM application engineering](questions/llm_application_engineering.md)
 - [Systems fundamentals](questions/systems_fundamentals.md)
 - [Technical communication](questions/technical_communication.md)
 - [Code-review checklist](questions/code_review_checklist.md)
+
+### Model architecture foundations
+
+Start with the [model architecture map](questions/model_architecture_map.md) for
+representative VLM, robot-policy, and world-model families. It connects computation
+paths, training objectives, inference, supervision, evaluation, and the supporting
+data infrastructure. The families overlap; this is not an exhaustive model catalog.
 
 ### Video-to-model path
 

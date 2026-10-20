@@ -1,53 +1,43 @@
-# Job scheduler and task execution
+# General – Job scheduler (Mercor workflow-inspired practice variant)
 
-## Core prompt
+## References
 
-Design a distributed service that accepts jobs, determines when they are eligible
-to run, and assigns them to execution workers.
+- [Reported Mercor workflow topic](mercor_system_design_reports.md): user-supplied reports; original public URLs unavailable.
+- [Public workflow practice question](https://prachub.com/interview-questions/design-a-workflow-orchestration-system-that-runs-multi-step-jobs-reliably).
+- [Workflow-orchestration exercise](workflow_orchestration.md).
 
-Focus on independent jobs rather than dependency graphs. Support for
-immediate, delayed, and recurring jobs is a scope decision. Define the timing,
-durability, and execution guarantees before choosing an architecture.
+## Evidence status
 
-## Questions to resolve
+The available evidence supports workflow or work orchestration, not a separate Mercor job-scheduler interview question. This document narrows that related topic to independent jobs. Its product behavior and operational constraints are original practice assumptions; do not count it as another reported interview round.
 
-- What makes a job eligible: its scheduled time, available resources, tenant
-  quota, priority, or another condition?
-- What timing accuracy, submission rate, concurrent execution, and job duration
-  should the service support?
-- Can recurring executions overlap? What happens to occurrences missed during
-  downtime, or affected by time-zone and daylight-saving changes?
-- How are submission, cancellation, rescheduling, and status inspection exposed?
-- Which job states are durable, and when may a successful submission be acknowledged?
-- Which failures are retryable, and who chooses backoff and attempt limits?
+## Problem statement
 
-## Optional design directions
+Design a service that accepts independent jobs, starts eligible work, and reports execution outcomes. Decide whether the exercise includes immediate jobs, delayed jobs, recurring jobs, or a subset. Dependencies between jobs belong to the separate workflow exercise.
 
-Trace a job from submission through eligibility, dispatch, execution, and a
-terminal state. Consider:
+## Functional requirements
 
-- How schedulers discover due jobs without losing or repeatedly flooding work.
-- How workers claim jobs, renew leases, and report progress or completion.
-- How expired leases and late worker responses affect authoritative state.
-- How priority, fairness, resource requirements, and backpressure interact.
-- How retries differ from new occurrences of a recurring job.
-- How operators diagnose jobs that are overdue, stuck, or repeatedly failing.
+For the proposed scope:
 
-Distinguish delivery guarantees from guarantees about external side effects.
-Explain what job implementations must do when execution can happen more than once.
+- Submit work with inputs, ownership, and an eligibility time or condition.
+- Expose accepted, waiting, running, and completed or failed outcomes, with your precise state definitions.
+- Allow cancellation and, if supported, rescheduling.
+- Retry eligible failures under a declared policy without hiding previous attempts.
+- Recover accepted work after a scheduler or worker interruption.
+- Distinguish retries from new occurrences of a recurring job.
+- Define overlapping occurrences, missed schedules, and time-zone changes if recurrence is included.
 
-## Validation scenarios
+## Non-functional requirements
 
-1. A scheduler restarts while making delayed jobs eligible.
-2. A worker's lease expires, but that worker continues running.
-3. A job performs an external action and crashes before recording completion.
-4. A recurring job takes longer than its recurrence interval.
-5. High-priority submissions continuously compete with older jobs.
-6. Cancellation arrives just as a worker claims a job.
+Set explicit exercise targets for submission volume, concurrent execution, job duration, scheduling accuracy, and recovery time. Clarify:
 
-For each scenario, identify durable state, recovery, and the visible outcome.
+- Whether successful submission implies durable acceptance.
+- Fairness among tenants and priorities under sustained demand.
+- Resource limits and behavior when capacity is unavailable.
+- Inspectability of overdue or repeatedly failing jobs.
+- Which execution guarantees apply to external side effects.
 
-## Related exercises
+These targets are not source facts.
 
-- [Workflow orchestration](workflow_orchestration.md) adds dependencies between tasks.
-- [Cloud-agent system](cloud_agents.md) adds permissions and agent execution concerns.
+## Optional failure conditions
+
+A worker continues after losing ownership; cancellation arrives as execution begins; a job changes an external system before crashing; a long-running recurring job overlaps its next occurrence. Define required outcomes rather than choosing scheduling algorithms or coordination mechanisms.

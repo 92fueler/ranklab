@@ -1,59 +1,41 @@
-# Candidate-search architecture
+# Mercor – Candidate-search architecture (reported system-design topic)
 
-## Core prompt
+## References
 
-Given a job description, design a system that searches a collection of synthetic
-candidate profiles for relevant matches.
+- [Mercor report collection](mercor_system_design_reports.md): user-supplied report; original public URL unavailable.
+- [Public candidate-search overview](https://prachub.com/interview-questions/build-a-candidate-search-system): related implementation exercise, with limited publicly visible detail.
+- [Separate hands-on project](../ai_projects/candidate_search.md).
 
-This is a retrieval and ranking exercise using fictional data. Do not connect it
-to live hiring systems or automate real employment decisions.
+## Evidence status
 
-The collection size, result count, ranking metrics, evaluation interface, and
-latency targets are unspecified. The separate
-[end-to-end candidate-search project](../ai_projects/candidate_search.md)
-defines a more concrete implementation variant; its requirements do not
-automatically apply here.
+A supplied candidate report describes a 45-minute system-design round about finding suitable candidates from a job description. It does not establish collection size, result count, evaluation metrics, or an evaluation endpoint. The separate hands-on project must not supply purported requirements for this round. All expanded requirements below are practice assumptions, not recovered interview instructions.
 
-## Questions to resolve
+## Problem statement
 
-- Which requirements are explicit hard constraints and which express relevance?
-- What fields exist in each synthetic profile, and how are missing fields treated?
-- What evidence should accompany a match?
-- How will relevance be assessed using synthetic labels or judgments?
-- How fresh must indexes and results be?
-- What scale, latency, and cost limits matter?
+Design a system that accepts a job description and returns relevant matches from a collection of fictional candidate profiles. Use synthetic data for practice, not a live hiring system or automated employment decisions.
 
-## Optional design directions
+## Functional requirements
 
-Discuss ingestion, validation, indexing, retrieval, ranking, and presentation.
-Possible approaches include keyword retrieval, structured filters, embeddings,
-or a multi-stage retrieval-and-ranking pipeline. None is mandatory.
+For the proposed exercise:
 
-Keep filtering distinct from ranking:
+- Accept a job description and distinguish mandatory criteria from preferences.
+- Return an ordered set of matching profiles, with the requested result count clarified first.
+- Explain matches using evidence present in the profiles.
+- Handle missing information, contradictory requirements, duplicate profiles, and no qualifying results.
+- Support profile additions and corrections, with defined search visibility.
+- Let an evaluator compare results against synthetic relevance judgments and inspect individual errors.
 
-- Make hard-filter decisions inspectable and testable.
-- Do not silently convert an ambiguous preference into an exclusion rule.
-- Distinguish a failed hard requirement from an unknown field.
-- Show the synthetic profile evidence supporting a result.
+## Non-functional requirements
 
-If using a language model to extract requirements or produce filters, define a
-restricted output schema, validate the output, and avoid executing arbitrary
-generated expressions.
+Choose these constraints before designing the system:
 
-## Validation scenarios
+- Collection size, profile update rate, query volume, and response-time objective.
+- Search freshness and availability expectations.
+- Relevant quality measures, hard-constraint correctness, and acceptable operating cost.
+- Reproducibility of comparisons and access limits for profile data.
 
-- A query has conflicting requirements.
-- All profiles fail the hard constraints.
-- A profile has missing or contradictory fields.
-- Duplicate profiles appear in retrieval results.
-- An index is stale after a profile update.
-- A generated filter is malformed or refers to an unsupported field.
+No numerical targets are established by the report.
 
-Compare retrieval coverage separately from final ranking quality. Explain
-latency, freshness, reproducibility, and failure behavior rather than relying on
-a single aggregate score.
+## Optional failure conditions
 
-## Related exercises
-
-- [End-to-end candidate-search project](../ai_projects/candidate_search.md) provides an implementation-focused variant with ten results.
-- [Technical communication and validation](../questions/technical_communication.md) covers documenting assumptions and generated-code validation.
+A profile update has not reached search results; all matching profiles lack a required field; an ambiguous phrase changes the apparent eligibility rule; aggregate relevance improves while one important query category worsens. Define what users and evaluators should observe, leaving the architecture open.

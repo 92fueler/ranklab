@@ -1,81 +1,42 @@
-# Video curation and sampling
+# NVIDIA Cosmos: Video curation and sampling platform
 
-## Core prompt
+Published-system-inspired exercise; not a verified interview prompt.
 
-Design an offline curation service accepting recording manifests and a policy
-version, then publishing clip manifests and sharded assets for training jobs.
-The workload is hypothetical.
+## References
 
-Which task matters: recognizing actions, answering visual questions, predicting
-future observations, or learning control? Which events make a low-quality clip
-valuable?
+- [NVIDIA Cosmos Cookbook: Data Curation](https://nvidia-cosmos.github.io/cosmos-cookbook/core_concepts/data_curation/overview.html)
 
-## Small example
+## Published System Context
 
-A collection contains 100 ten-minute manipulation recordings. A baseline samples
-two frames per second in four-second clips. A failed grasp lasts 150 milliseconds;
-several minutes contain similar successes.
+NVIDIA's Cosmos documentation describes video splitting, transcoding, cropping, filtering, captioning, deduplication, and structured sharding. It distinguishes broad pretraining curation from targeted post-training datasets and emphasizes domain coverage, quality, and provenance. These published capabilities motivate the exercise; their described implementation is not a required backend design.
 
-Compare event-aware windows containing context before and after contact.
-Which policy misses failures, cuts actions at boundaries, or overrepresents
-successes? Preserve source timestamps for audits against original footage.
+## Problem Statement
 
-## Choose the transformation contract
+Design a curation service that lets data engineers and researchers turn heterogeneous video collections into training-ready datasets. A researcher should compare alternative selection policies, inspect what each retains or excludes, and release a dataset for distributed model training. The exercise concerns data-processing operations and dataset delivery, not inventing a video-generation model.
 
-- Order splitting, transcoding, cropping, captioning, filtering, deduplication,
-  and sharding. Which operations change evidence available to later decisions?
-- Will segmentation use fixed windows, scene changes, action boundaries, or a
-  combination? What minimum context and overlap are required?
-- Should cropping follow a hand or object, and what happens when the relevant
-  object leaves the crop? Keep mappings to original coordinates and timestamps.
-- Which cached assets and manifests allow reproducible reruns?
-- Would speeding up a trajectory distort contact phases or action timing?
-  How are temporal transformations propagated to aligned labels, state, and actions?
+All requirements below are proposed exercise scope, not claims about Cosmos deployments.
 
-## Choose annotation and acceptance rules
+## Functional Requirements
 
-- How will a vision-language model propose weak labels or captions, and which
-  claims require visual evidence with a time interval or region?
-- Version taxonomy, instructions, model, confidence, and human corrections.
-  Confidence is not measured accuracy: which reviewed sample establishes
-  reliability by class and condition?
-- Which examples receive human audits: random samples, rare labels, threshold
-  boundaries, disagreements, and rejected clips? Auditing only accepted clips
-  cannot reveal all useful examples the filter removed.
-- Which confidence thresholds or quality checks exclude clips versus assigning
-  tags or sampling weights? Avoid removing dark, occluded, or unsuccessful examples
-  that matter to the task. Keep objective-specific views instead of permanently
-  deleting every rejected example.
+- Register source collections with media references, metadata, usage restrictions, and the intended training domain. Report unreadable or incomplete inputs.
+- Let researchers define and version curation requests covering clip boundaries, transformations, quality criteria, captions, duplicate handling, and desired coverage.
+- Submit, inspect, cancel, and retry processing jobs. Make the outcome of repeated submissions and partially completed work understandable to callers.
+- Provide previews and sampled review sets for accepted and rejected clips, with the reasons and source evidence behind each decision.
+- Compare candidate datasets by retained duration, domain composition, rare-event coverage, label quality, and processing cost. Preserve unsuccessful or unusual behavior when the selected objective requires it.
+- Publish complete dataset releases containing media, annotations, selection decisions, and lineage that distributed training readers can consume consistently.
+- Allow later policy revisions or source corrections to create new releases and identify affected prior outputs without silently changing a running experiment's inputs.
+- Expose collection-registration, job-control, preview, comparison, and release-retrieval interfaces; retain durable records linking these operations.
 
-## Choose diversity and release checks
+## Non-Functional Requirements
 
-Distinguish exact duplicates, overlaps, and similar repetitions. Choose similarity
-thresholds and diversity quotas; near duplicates can contain different outcomes.
-Group related recordings before train, validation, and test assignment.
+Proposed exercise assumptions, not NVIDIA's reported service guarantees:
 
-Report retained duration, class and environment coverage, audited label precision,
-useful-event recall against a reviewed reference set, rejection reasons, and
-processing cost. Did filtering improve downstream performance or merely simplify
-the collection?
+- Processing must tolerate individual media failures without misreporting the entire collection as successful.
+- Interactive inspection must remain usable during large processing runs.
+- Release construction and training access must scale to the workload agreed for the exercise.
+- Results must remain traceable to their sources and policy versions.
+- Resource consumption and unsuccessful work must be attributable to a request.
 
-## Execution and interfaces
+## Requirements to Clarify
 
-At 10,000 uploaded hours/day, how do CPU decoding, accelerator captioning, and
-human review share backpressure? Specify job submission/status interfaces,
-idempotent retries, persistent decisions, and atomic manifest publication.
-Can training readers ever see a partially processed release?
-
-## Validation scenarios
-
-1. Event detection misses rare failures.
-2. A taxonomy change splits one action into two incompatible labels.
-3. A new crop policy removes evidence needed to audit old captions.
-4. Deduplication removes legitimate environmental variation.
-
-Explain detection, affected manifests, re-review, and rollback.
-
-## Related exercises
-
-- [Robotics video ingestion](robotics_video_pipeline.md)
-- [Annotation quality control](annotation_quality_control.md)
-- [Sampling and visual tokens](../questions/video_sampling_and_visual_tokens.md)
+Set source volume, daily arrivals, supported codecs, quality-review budget, release deadline, and training-reader throughput. Define what counts as a harmful duplicate and which rare events must survive selection. Decide which transforms preserve required temporal evidence and how retention restrictions affect reproducibility.

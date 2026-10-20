@@ -1,50 +1,43 @@
-# Cloud-agent system
+# Mercor – Cloud-agent system (reported topic)
 
-## Core prompt
+## References
 
-Design a cloud-hosted system that runs agent tasks.
+- [Mercor report collection](mercor_system_design_reports.md): user-supplied report; original public URL unavailable.
+- [Related workflow exercise](workflow_orchestration.md), which has a different scope.
 
-The agent's capabilities, task model, interfaces, scale, and permissions are open
-design questions. Establish these before choosing an architecture.
+## Evidence status
 
-## Questions to resolve
+The supplied material contains a short follow-up comment naming a cloud-agent system-design topic. It does not specify agent capabilities, interfaces, permissions, scale, or execution guarantees. The problem and requirements below expand that topic into an original practice exercise; they are not a recovered interview specification or an official company rubric.
 
-- Who submits a task, what inputs does it contain, and what counts as completion?
-- Is execution interactive, asynchronous, scheduled, or a combination?
-- Can agents call external tools or change external state?
-- Which actions require user approval, and how is that approval scoped?
-- What task duration, concurrency, latency, and availability should the system support?
-- What execution state must survive a worker or service restart?
-- What are the tenant, data-retention, and isolation boundaries?
+## Problem statement
 
-## Optional design directions
+Design a cloud-hosted service where users submit tasks for software agents and inspect their progress and results. First define which tasks an agent may perform and which actions, if any, can affect external systems.
 
-Use the following questions to expand an explicitly chosen scope:
+## Functional requirements
 
-1. How do task submission, admission control, and scheduling work?
-2. How are task status, checkpoints, outputs, and errors stored durably?
-3. How does a worker claim work, renew its lease, and recover after a crash?
-4. Which operations can safely be retried? How are duplicate external effects prevented?
-5. How do cancellation, deadlines, and partial results behave?
-6. How are tool permissions, secrets, sandboxing, and user approvals enforced?
-7. How can a user inspect progress or diagnose a stalled task?
-8. How do quotas, backpressure, logs, metrics, and traces expose resource use?
+Assume the practice service must:
 
-## Validation scenarios
+- Accept a task with inputs, ownership, and a clear completion criterion.
+- Show task status, progress, outputs, and understandable failure information.
+- Let users cancel work, with defined behavior for actions already in progress.
+- Respect each task's allowed tools, data access, and required user approvals.
+- Recover interrupted tasks according to an explicit retry policy.
+- Distinguish task completion from the outcome of any external action whose response is missing.
 
-Choose relevant scenarios and explain the expected state transitions:
+Interactive execution, scheduled tasks, and cooperation among agents are optional scope choices.
 
-- A worker stops after an external action but before recording its result.
-- A task is delivered twice.
-- A user cancels while a tool call is in progress.
-- A task requests a tool outside its permissions.
-- One tenant submits enough long-running tasks to exhaust shared capacity.
+## Non-functional requirements
 
-Describe where guarantees stop. Durable execution does not by itself make every
-external effect exactly once.
+Proposed constraints to clarify:
 
-## Related exercises
+- Concurrent tasks, duration distribution, submission rate, and progress-update latency.
+- Availability, accepted-work durability, and recovery objectives.
+- Tenant isolation, secret protection, retention, and auditable authorization.
+- Per-task resource budgets and fair treatment under overload.
+- Visibility into stalled work, repeated failures, and resource consumption.
 
-- [Workflow orchestration](workflow_orchestration.md) focuses on task dependencies and recovery.
-- [Reliable payment integration](payment_integration.md) examines a consequential external effect.
-- [Technical communication and validation](../questions/technical_communication.md) provides a structure for documenting assumptions and trade-offs.
+No measured targets or architecture are established by the report.
+
+## Optional failure conditions
+
+An agent loses contact after changing an external system; cancellation races with a tool action; a task requests unauthorized access; one tenant exhausts available capacity. Specify the expected user-visible outcomes without assuming a particular execution framework.

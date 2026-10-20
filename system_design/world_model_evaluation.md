@@ -1,69 +1,42 @@
-# World-model evaluation
+# World Labs Real-to-Sim-to-Real: Evaluation platform
 
-## Core prompt
+Published-system-inspired exercise; not a verified interview prompt.
 
-Design an evaluation system for a model that predicts future observations or
-state from observation history and proposed actions. Decide whether its outputs
-support visualization, planning, policy training, or policy evaluation: those
-uses require different evidence.
+## References
 
-Visually convincing frames do not establish temporal coherence, geometric
-consistency, correct contact dynamics, or responsiveness to actions. A single
-photorealism score cannot prove usefulness as a control simulator.
+- [World Labs: Building Worlds That Train Robots](https://www.worldlabs.ai/blog/real-to-sim-to-real)
 
-## Experimental contract
+## Published System Context
 
-Hold out episodes and relevant combinations of objects, tasks, environments,
-and embodiments. Pin model, policy, dataset, action interface, calibration,
-sampling configuration, and scoring versions. Separate teacher-forced
-next-step prediction from free-running rollouts, where errors accumulate.
-Do not select checkpoints on the held-out evaluation rollouts.
+World Labs describes reconstructed interactive worlds validated through matched open-loop actions in simulation and reality. It also reports closed-loop evaluation where simulated results preserve relative policy rankings and reveal similar failure regions. These are reported findings for demonstrated settings, not proof that every reconstructed world predicts every robot's performance.
 
-Compare action-conditioned rollouts against held-out real trajectories at
-several horizons. Where feasible, construct matched real and simulated scenarios
-with comparable initial state, objects, instructions, sensing, and action timing.
-Report residual mismatches rather than treating a visually similar scene as
-the same experiment. Evaluate both replayed action sequences and closed-loop
-policies; feedback changes the action distribution.
+## Problem Statement
 
-## Measurement dimensions
+Design an evaluation backend that helps researchers decide whether a reconstructed world is useful for comparing robot policies. It must manage simulated trials, corresponding hardware evidence, and reproducible reports. Support both replaying a fixed action sequence to assess alignment and running policies in closed loop to assess downstream usefulness.
 
-- Appearance and semantics: object identity, relevant attributes, and visibility,
-  using task-appropriate reference comparisons and reviewed examples.
-- Temporal and geometric consistency: persistence, motion, occlusion, viewpoint
-  changes, depth, and spatial relations where trustworthy measurements exist.
-- Action consistency: whether commanded direction, magnitude, timing, contact,
-  and resulting state changes agree with available reference evidence.
-- Long-horizon behavior: compounding error, recovery, state drift, and failure
-  frequency, not just favorable short clips.
+All requirements below are proposed exercise scope, not claims about World Labs' backend.
 
-Probe counterfactual actions from similar initial conditions. Check whether
-predictions change appropriately, but do not call an unobserved alternative
-ground truth; use controlled real trials or validated constraints when possible.
-Evaluate uncertainty against observed errors and coverage, with separate
-out-of-distribution slices. Diverse samples alone do not establish calibrated
-uncertainty.
+## Functional Requirements
 
-## Validate the downstream proxy
+- Register versioned worlds, policy checkpoints, task definitions, robot/sensor configurations, and real-world reference trials with their usage restrictions.
+- Let researchers submit evaluation suites specifying initial conditions, policy candidates, test distributions, repetition rules, and scoring definitions.
+- Distinguish matched open-loop comparisons from closed-loop policy trials. Record residual setup differences so unmatched conditions are not presented as controlled comparisons.
+- Execute and track distributed simulation jobs; accept authorized hardware-trial results. Support cancellation, retries, and explicit incomplete or invalid outcomes.
+- Preserve observations, actions, outcomes, relevant timing, and trial metadata as inspectable artifacts linked to the exact evaluation configuration.
+- Compare simulated and real policy rankings, progress across checkpoints, and failure regions. Report trial counts and uncertainty rather than collapsing all evidence into a visual-quality score.
+- Let researchers inspect ranking reversals and regressions, compare report versions, and request additional evaluation on poorly covered conditions.
+- Expose interfaces for suite submission, trial status, artifact retrieval, and report comparison. Hardware execution approval remains a separate workflow.
 
-If simulation ranks policies, compare multiple policy checkpoints on matched
-real and simulated tasks. Test whether the simulator preserves the ordering of
-real policy performance, with uncertainty and individual ranking reversals,
-rather than only matching an average success rate. A policy may exploit model
-errors; test candidates beyond those used to tune the simulator.
+## Non-Functional Requirements
 
-Report real task success, safety-relevant failures, sample size, and scenario
-coverage alongside simulation results. Use episode-level paired comparisons
-when appropriate. Restrict conclusions to tested tasks and distributions;
-strong ranking agreement is evidence for that use, not universal validity.
+Proposed exercise assumptions, not World Labs' reported service guarantees:
 
-## Validation scenarios
+- Trial failures and missing hardware evidence must remain distinguishable from policy failures.
+- Reports must preserve provenance and prevent accidental reuse of tuning examples as held-out evidence.
+- Parallel evaluation must respect agreed compute budgets and hardware capacity.
+- Completed results must survive worker failures without double-counting retried trials.
+- Access to customer environments, recordings, and policies must be restricted appropriately.
 
-1. A rollout looks realistic while an object moves opposite to the command.
-2. Short-horizon accuracy improves but long-horizon policy rankings reverse.
-3. Low uncertainty accompanies frequent failures on an unseen object class.
+## Requirements to Clarify
 
-## Related exercises
-
-- [Multimodal model training](multimodal_model_training.md)
-- [Evaluation metrics](../questions/evaluation_metrics.md)
+Agree on tasks, embodiments, scenario coverage, repeat counts, and the tolerance for mismatched initial conditions. How much hardware evidence is available, and who may request more? Define the statistical evidence needed for useful ranking agreement, report latency, artifact retention, and maximum evaluation cost.
