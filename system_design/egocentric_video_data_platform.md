@@ -44,6 +44,18 @@ Trace capture through a training-ready dataset snapshot. Consider:
 Distinguish upload acceptance, processing completion, search visibility, and dataset
 release. Define the guarantees at each boundary.
 
+## Optional engineering variants
+
+Consider these optional extensions beyond the core requirements:
+
+- Test diversity beyond task labels using embedding clusters, near-duplicate
+  similarity thresholds, and task quotas; detect submissions that mismatch their
+  selected task.
+- Return asynchronous processing and quality feedback to collectors without
+  coupling upload acceptance to final dataset inclusion.
+- Distinguish episode summaries from fine-grained captions; preserve time ranges
+  and lineage when episodes are resegmented.
+
 ## Validation scenarios
 
 1. A collector resumes an interrupted upload and resubmits an overlapping segment.

@@ -34,6 +34,25 @@ Trace capture to usable output. Consider:
 Which artifacts must be consistent before a recording or dataset version becomes
 visible? An uploaded file need not mean a complete, usable recording.
 
+## Optional engineering variants
+
+These extensions are optional, not established requirements:
+
+- Mixed-modality collections
+  may combine images, videos, action sequences, and labels: define temporal
+  alignment and audit collection bias and coverage.
+- At 2 GB/s sustained ingestion,
+  estimate daily storage; clarify whether that rate includes
+  replication and budget separately for burst headroom, derived assets, and retention.
+- For firmware-driven quality changes,
+  version semantic/schema contracts; validate before release, canary changes,
+  and route failures to producer owners.
+- Across on-premises and cloud infrastructure,
+  choose storage/compute placement around transfer bottlenecks and training-read locality.
+
+Choose the additional workload and producer-version assumptions explicitly
+before exploring these variants.
+
 ## Validation scenarios
 
 1. A robot disconnects midway through an upload and later retries it.

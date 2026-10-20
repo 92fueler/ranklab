@@ -36,6 +36,17 @@ Trace import, assignment, submission, review, and inclusion in a dataset release
 Explain release criteria, approval authority, and how consumers reproduce the
 labels and rules used in a version.
 
+## Optional engineering variants
+
+Consider these optional data-curation extensions:
+
+- Separate accidental technical or semantic quality failures from deliberate
+  contributor abuse.
+- Sample at contributor level for human fraud review, rather than assuming
+  clip-level automated checks detect evasion.
+- Track review outcomes separately from annotation disagreement, with corrective
+  feedback and auditable decisions.
+
 ## Validation scenarios
 
 1. A contributor loses connectivity just before submitting completed work.
