@@ -17,6 +17,12 @@ TODO
     cycles, duplicate operations, unknown people, and invalid identifiers.
     Return snapshots rather than mutable internal collections.
 
+Optional acyclic-policy variant
+    Require a directed acyclic graph instead. Define cycle-rejection behavior
+    for edge insertion, then test a back edge and concurrent insertions.
+    Acyclicity alone does not impose one referrer per person or define a flow
+    score. Keep this optional policy separate from the cyclic starter above.
+
 Related files: referral_rankings.py and referral_growth.py.
 """
 

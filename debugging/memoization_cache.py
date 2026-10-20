@@ -21,11 +21,24 @@ TODO expectations
     invalid keys, capacity/eviction, and falsey cached results. Test against the
     documented policy rather than treating every possible feature as required.
 
+Optional asynchronous adaptation and review
+    The async TODO is an independent Python adaptation, not another language's
+    source snippet. Decide whether concurrent misses share pending loads,
+    rejected loads are removed, and caller cancellation affects shared work.
+    Prevent a stale completion from overwriting invalidation or a newer write.
+    Define eviction while callers await a load and bound retained memory;
+    garbage collection alone does not enforce a cache-size limit.
+
+    Contrast JavaScript event-loop interleaving across await with shared-memory
+    C++ threads and their synchronization requirements. When reviewing an async
+    API, check async declarations, stored values, and unused parameters in the
+    actual language; do not transfer syntax defects between languages.
+
 Run this file to observe duplicate work and cache growth. It uses only local
 memory and threads; the short barrier coordinates the demonstration.
 """
 
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 
@@ -44,6 +57,14 @@ def cached_value_buggy(key: object, compute: Callable[[object], object]) -> obje
 def cached_value(key: object, compute: Callable[[object], object]) -> object:
     """TODO: specify and implement a repaired cache API; change it if needed."""
     # TODO: Make storage ownership, configuration, and lifecycle explicit.
+    raise NotImplementedError
+
+
+async def cached_value_async(
+    key: object, compute: Callable[[object], Awaitable[object]]
+) -> object:
+    """TODO: define async ownership, invalidation, cancellation, and capacity."""
+    # TODO: Implement separately from the synchronous thread-based exercise.
     raise NotImplementedError
 
 

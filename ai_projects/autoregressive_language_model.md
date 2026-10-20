@@ -35,6 +35,14 @@ hardware rather than optimizing scale before correctness.
 4. Train with a documented configuration and monitor validation loss separately.
 5. Save and reload a checkpoint, then generate text.
 
+Optional correctness checks for a decoder implementation:
+
+- Exclude padding from the intended attention and loss calculations.
+- Test fully masked or extreme-valued inputs for non-finite outputs.
+- Verify context cropping preserves token/position alignment.
+- If key/value caching is implemented, compare cached and uncached next-token
+  outputs under identical inputs and deterministic evaluation settings.
+
 Avoid train/validation leakage. Record the split, random seed, configuration,
 and checkpoint format so another run can be compared fairly.
 

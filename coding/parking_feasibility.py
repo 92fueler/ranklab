@@ -13,6 +13,10 @@ Explicit starter version
     a particular greedy policy succeeds. Different cars may share preferences.
     No unstated rule such as "drive to the next free space" is assumed.
 
+Separate variant
+    parking_forward_only.py uses a fixed next-free-space policy. It does not
+    allow arbitrary choices among fallback spaces.
+
 TODO
     Implement feasibility for these chosen rules and validate all positions.
     As a separate extension, enumerate valid assignments with backtracking and

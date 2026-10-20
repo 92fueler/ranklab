@@ -14,6 +14,10 @@ Explicit starter version
     the constrained resource. Rate limits, batching, and retries are additional
     policies to define if the real API supports or requires them.
 
+Separate variant
+    social_graph_neighborhood.py collects all nodes within a friendship
+    distance using a mutual graph and a complete-neighbor-list API.
+
 TODO
     Implement search without exceeding max_calls. Distinguish proven absence
     of a path from an incomplete budget-limited search. Avoid repeated page

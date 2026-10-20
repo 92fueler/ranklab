@@ -22,6 +22,11 @@ TODO
     enumeration and how exhaustive enumeration differs from random shuffling.
     Test empty/singleton inputs, duplicates, sorted/reverse-sorted data,
     negative values, input preservation, and output multiplicities.
+
+Additional analysis
+    Explain how quicksort's pivot choices affect balanced and worst-case
+    partitions. Count nonempty subsequences of n positions, distinguishing
+    position selections from distinct value sequences when values repeat.
 """
 
 from collections.abc import Sequence

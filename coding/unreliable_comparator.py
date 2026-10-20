@@ -30,6 +30,10 @@ TODO
     pairs. A fake clock or short configurable delay can replace real five-second
     sleeps in tests. Cover k = 0, k = n, invalid k, duplicates, ties, and cycles
     in the comparison relation.
+
+Separate variant
+    independent_error_sort.py asks for a full order with fresh independent
+    errors and a monetary cost per call. Its statistical assumptions differ.
 """
 
 from collections.abc import Sequence

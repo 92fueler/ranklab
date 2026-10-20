@@ -37,6 +37,9 @@ Equivalently, the number of label placements is "4 choose 2," which equals six.
 
 ## Extensions
 
+- Change the event to either shop occupying both top ranks, rather than a
+  specified shop. Which rank-label arrangements now qualify? Explain why this
+  is a different event before calculating its probability.
 - Explain why different shop-quality distributions can invalidate the equal-likelihood argument.
 - Decide how ties affect the event "score higher" and calculate an example with discrete scores.
 - Check the result with a seeded simulation under the stated model.
